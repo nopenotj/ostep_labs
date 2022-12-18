@@ -9,10 +9,21 @@ void write(int count, char prev) {
   fwrite(&count, sizeof(int), 1, stdout);
   fwrite(&prev, sizeof(char), 1, stdout);
 }
-void encode(FILE* fd){
+
+int main (int argc, char *argv[]) {
+  if (argc < 2) usage();
+  int i = 1;
+  FILE* fd = fopen(argv[i],"r");
   char c, prev = fgetc(fd);
   int count = 1;
-  while((c = fgetc(fd)) != EOF){
+  while(1){
+    // Get next Character
+    if ((c = fgetc(fd)) == EOF) {
+      if(!(++i < argc)) break;
+      fd = fopen(argv[i],"r");
+      continue;
+    }
+    // Compress characters
     if(c == prev) {
       count++;
     } else {
@@ -22,12 +33,5 @@ void encode(FILE* fd){
     prev = c;
   }
   write(count,prev);
-}
-
-int main (int argc, char *argv[]) {
-  if (argc < 2) usage();
-  for(int i = 1; i< argc; i++) {
-    encode(fopen(argv[i],"r"));
-  }
   return 0;
 }
